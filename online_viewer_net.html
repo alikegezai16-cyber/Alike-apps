@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="description" content="Alike - Personal Sovereignty Technology. Privacy-first task manager, goals tracker, and memory system.">
+    <title>Alike | Personal AI Assistant</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQWxpa2UiLCJzaG9ydF9uYW1lIjoiQWxpa2UiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBhMGEwYSIsInRoZW1lX2NvbG9yIjoiIzBhMGEwYSJ9">
+    
+    <!-- Icons -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 20L75 75H25Z' fill='none' stroke='%2300d4ff' stroke-width='5'/%3E%3Ccircle cx='50' cy='45' r='5' fill='%2300d4ff'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230a0a0a'/%3E%3Cpath d='M50 25L70 70H30Z' fill='none' stroke='%2300d4ff' stroke-width='4'/%3E%3C/svg%3E">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1c1c1c;
+            --accent: #00d4ff;
+            --accent-green: #00ff88;
+            --text: #ffffff;
+            --text-muted: #888888;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+        
+        body {
+            background: var(--bg-primary);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Auth Screen */
+        .auth-screen {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            background: radial-gradient(circle at 50% 0%, rgba(0, 212, 255, 0.15) 0%, transparent 50%);
+        }
+        
+        .logo-container {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1.5rem;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .logo h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .logo p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .auth-card {
+            width: 100%;
+            max-width: 400px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .auth-tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 2rem;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .auth-tab.active {
+            background: rgba(0, 212, 255, 0.2);
+            color: var(--accent);
+        }
+        
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-group label {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(0, 212, 255, 0.05);
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent) 0%, #0099cc 100%);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+        
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+        
+        /* Main App */
+        .app-container {
+            display: none;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        
+        .app-header {
+            position: sticky;
+            top: 0;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-green) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .greeting h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .greeting p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        .menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        
+        /* Content */
+        .content {
+            padding: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        .card:hover {
+            border-color: rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            color: var(--accent);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .section-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .view-all {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        /* Tasks */
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .task-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+        
+        .task-item.priority-high { border-left-color: #ff4444; }
+        .task-item.priority-medium { border-left-color: #ffaa00; }
+        .task-item.priority-low { border-left-color: #00ff88; }
+        
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+        
+        .task-checkbox.checked {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+        
+        .task-content {
+            flex: 1;
+        }
+        
+        .task-content h4 {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .task-content.completed h4 {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+        
+        .task-meta {
+            display: flex;
+            gap: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        .priority-badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .priority-high .priority-badge { background: rgba(255, 68, 68, 0.2); color: #ff4444; }
+        .priority-medium .priority-badge { background: rgba(255, 170, 0, 0.2); color: #ffaa00; }
+        .priority-low .priority-badge { background: rgba(0, 255, 136, 0.2); color: var(--accent-green); }
+        
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 10, 0.98);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 0.75rem 0;
+            z-index: 1000;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem 1.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.75rem;
+            transition: all 0.3s;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+        
+        .nav-item.active {
+            color: var(--accent);
+        }
+        
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--accent) 0%, #0099cc 100%);
+            color: #000;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 999;
+        }
+        
+        .fab:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .modal {
+            background: var(--bg-secondary);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 24px 24px 0 0;
+            padding: 1.5rem;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+        }
+        
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+        
+        .modal-handle {
+            width: 40px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .modal h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .priority-select {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .priority-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .priority-btn.active {
+            border-color: var(--accent);
+            background: rgba(0, 212, 255, 0.1);
+        }
+        
+        .priority-btn.high.active { border-color: #ff4444; background: rgba(255, 68, 68, 0.1); color: #ff4444; }
+        .priority-btn.medium.active { border-color: #ffaa00; background: rgba(255, 170, 0, 0.1); color: #ffaa00; }
+        .priority-btn.low.active { border-color: var(--accent-green); background: rgba(0, 255, 136, 0.1); color: var(--accent-green); }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+        
+        /* Menu Modal */
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            color: var(--text);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+        
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .menu-item.danger {
+            color: #ff4444;
+        }
+        
+        .menu-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 0.5rem 0;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 1rem;
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-green) 100%);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--bg-secondary);
+            color: var(--text);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            z-index: 3000;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        
+        /* Hide scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        
+        /* Responsive */
+        @media (min-width: 768px) {
+            .bottom-nav {
+                display: none;
+            }
+            
+            .app-container {
+                padding-bottom: 0;
+            }
+            
+            .fab {
+                bottom: 40px;
+            }
+        }
+        
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-in {
+            animation: slideIn 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="auth-screen">
+        <div class="logo-container">
+            <div class="logo">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="45" stroke="url(#grad1)" stroke-width="2" opacity="0.3" stroke-dasharray="4 4">
+                        <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="20s" repeatCount="indefinite"/>
+                    </circle>
+                    <path d="M50 20L75 75H25Z" stroke="url(#grad1)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="50" cy="45" r="5" fill="#00d4ff"/>
+                    <circle cx="37" cy="65" r="4" fill="#00ff88"/>
+                    <circle cx="63" cy="65" r="4" fill="#00d4ff"/>
+                    <defs>
+                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00d4ff"/>
+                            <stop offset="100%" style="stop-color:#00ff88"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <h1>Alike</h1>
+            <p>Personal Sovereignty Technology</p>
+        </div>
+
+        <div class="auth-card">
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')">Create Account</button>
+            </div>
+
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="login-email" required placeholder="you@example.com">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-primary">Sign In</button>
+            </form>
+
+            <form id="register-form" style="display: none;" onsubmit="handleRegister(event)">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="reg-name" required placeholder="John Doe">
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="reg-email" required placeholder="you@example.com">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="reg-password" required minlength="6" placeholder="Min 6 characters">
+                </div>
+                <button type="submit" class="btn-primary">Create Account</button>
+            </form>
+        </div>
+
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2rem; text-align: center;">
+            By using Alike, you agree to our Privacy First policy.<br>
+            Your data is stored locally and never sold.
+        </p>
+    </div>
+
+    <!-- Main App -->
+    <div id="app-container" class="app-container">
+        <header class="app-header">
+            <div class="user-info">
+                <div class="avatar" id="user-avatar">U</div>
+                <div class="greeting">
+                    <p id="greeting-text">Good morning</p>
+                    <h2 id="user-name">User</h2>
+                </div>
+            </div>
+            <button class="menu-btn" onclick="openMenu()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="1"/>
+                    <circle cx="19" cy="12" r="1"/>
+                    <circle cx="5" cy="12" r="1"/>
+                </svg>
+            </button>
+        </header>
+
+        <main class="content" id="main-content">
+            <!-- Dashboard -->
+            <div id="view-dashboard" class="view">
+                <div class="card animate-in">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Daily Focus</p>
+                            <h2 style="font-size: 2.5rem; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-green) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;" id="focus-score">85%</h2>
+                        </div>
+                        <div style="width: 60px; height: 60px; position: relative;">
+                            <svg width="60" height="60" viewBox="0 0 60 60" style="transform: rotate(-90deg);">
+                                <circle cx="30" cy="30" r="26" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"/>
+                                <circle cx="30" cy="30" r="26" fill="none" stroke="url(#grad2)" stroke-width="4" stroke-dasharray="163.36" stroke-dashoffset="24.5" stroke-linecap="round"/>
+                                <defs>
+                                    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" style="stop-color:#00d4ff"/>
+                                        <stop offset="100%" style="stop-color:#00ff88"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2">
+                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="progress-bar" style="height: 6px; margin-bottom: 0.5rem;">
+                        <div class="progress-fill" id="focus-bar" style="width: 85%;"></div>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;" id="focus-message">You're on fire today! Keep it up.</p>
+                </div>
+
+                <div class="stats-grid animate-in">
+                    <div class="stat-card">
+                        <h3 id="stat-tasks">0/0</h3>
+                        <p>Tasks Done</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="stat-goals">0</h3>
+                        <p>Active Goals</p>
+                    </div>
+                </div>
+
+                <div class="animate-in">
+                    <div class="section-header">
+                        <h3>Priority Tasks</h3>
+                        <a href="#" class="view-all" onclick="switchView('tasks')">View all</a>
+                    </div>
+                    <div id="dashboard-tasks">
+                        <!-- Tasks injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks -->
+            <div id="view-tasks" class="view" style="display: none;">
+                <div class="section-header">
+                    <h3>All Tasks</h3>
+                </div>
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; overflow-x: auto;">
+                    <button class="priority-btn active" onclick="filterTasks('all')">All</button>
+                    <button class="priority-btn" onclick="filterTasks('active')">Active</button>
+                    <button class="priority-btn" onclick="filterTasks('completed')">Completed</button>
+                </div>
+                <div id="all-tasks">
+                    <!-- All tasks injected here -->
+                </div>
+            </div>
+
+            <!-- Goals -->
+            <div id="view-goals" class="view" style="display: none;">
+                <div class="section-header">
+                    <h3>Your Goals</h3>
+                </div>
+                <div id="goals-list">
+                    <!-- Goals injected here -->
+                </div>
+            </div>
+
+            <!-- Memory -->
+            <div id="view-memory" class="view" style="display: none;">
+                <div class="section-header">
+                    <h3>Memory Bank</h3>
+                </div>
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <textarea id="memory-input" placeholder="What do you want to remember?" style="width: 100%; background: transparent; border: none; color: var(--text); resize: none; outline: none; min-height: 80px;"></textarea>
+                    <button class="btn-primary" style="margin-top: 1rem;" onclick="saveMemory()">Save Memory</button>
+                </div>
+                <div id="memory-list">
+                    <!-- Memories injected here -->
+                </div>
+            </div>
+        </main>
+
+        <!-- FAB -->
+        <button class="fab" onclick="openAddModal()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </button>
+
+        <!-- Bottom Nav -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="switchView('dashboard')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" onclick="switchView('tasks')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 11l3 3L22 4"></path>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+                <span>Tasks</span>
+            </button>
+            <button class="nav-item" onclick="switchView('goals')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r="6"></circle>
+                    <circle cx="12" cy="12" r="2"></circle>
+                </svg>
+                <span>Goals</span>
+            </button>
+            <button class="nav-item" onclick="switchView('memory')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a10 10 0 1 0 10 10H12V2z"></path>
+                    <path d="M12 2a10 10 0 0 1 10 10"></path>
+                    <path d="M12 12L2.5 12"></path>
+                </svg>
+                <span>Memory</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="add-modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <h3>Add New Task</h3>
+            <div class="input-group">
+                <label>Task Title</label>
+                <input type="text" id="task-title" placeholder="What needs to be done?">
+            </div>
+            <div class="priority-select">
+                <button class="priority-btn high" onclick="setPriority('high')">High</button>
+                <button class="priority-btn medium active" onclick="setPriority('medium')">Medium</button>
+                <button class="priority-btn low" onclick="setPriority('low')">Low</button>
+            </div>
+            <button class="btn-primary" onclick="addTask()">Add Task</button>
+        </div>
+    </div>
+
+    <!-- Menu Modal -->
+    <div id="menu-modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div class="avatar" id="menu-avatar" style="width: 80px; height: 80px; font-size: 2rem; margin: 0 auto 1rem;">U</div>
+                <h3 id="menu-name">User Name</h3>
+                <p style="color: var(--text-muted);" id="menu-email">user@example.com</p>
+            </div>
+            <div class="menu-divider"></div>
+            <a href="#" class="menu-item" onclick="logout()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                <span>Sign Out</span>
+            </a>
+            <div class="menu-divider"></div>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 1rem;">
+                Alike v1.0.0 • ALIKEDECOR
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Data Store
+        const Store = {
+            users: JSON.parse(localStorage.getItem('alike_users')) || [],
+            tasks: JSON.parse(localStorage.getItem('alike_tasks')) || [],
+            goals: JSON.parse(localStorage.getItem('alike_goals')) || [],
+            memories: JSON.parse(localStorage.getItem('alike_memories')) || [],
+            currentUser: JSON.parse(localStorage.getItem('alike_current_user')) || null,
+
+            save() {
+                localStorage.setItem('alike_users', JSON.stringify(this.users));
+                localStorage.setItem('alike_tasks', JSON.stringify(this.tasks));
+                localStorage.setItem('alike_goals', JSON.stringify(this.goals));
+                localStorage.setItem('alike_memories', JSON.stringify(this.memories));
+                localStorage.setItem('alike_current_user', JSON.stringify(this.currentUser));
+            },
+
+            getUserTasks() {
+                return this.tasks.filter(t => t.userId === this.currentUser?.id).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            },
+            getUserGoals() {
+                return this.goals.filter(g => g.userId === this.currentUser?.id);
+            },
+            getUserMemories() {
+                return this.memories.filter(m => m.userId === this.currentUser?.id).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            }
+        };
+
+        let currentPriority = 'medium';
+        let currentFilter = 'all';
+
+        // Auth Functions
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (tab === 'login') {
+                document.getElementById('login-form').style.display = 'block';
+                document.getElementById('register-form').style.display = 'none';
+            } else {
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('register-form').style.display = 'block';
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            const user = Store.users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                Store.currentUser = user;
+                Store.save();
+                showApp();
+                showToast('Welcome back!', 'success');
+            } else {
+                showToast('Invalid email or password');
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            
+            if (Store.users.find(u => u.email === email)) {
+                showToast('Email already registered');
+                return;
+            }
+            
+            const newUser = {
+                id: Date.now().toString(),
+                name,
+                email,
+                password,
+                createdAt: new Date().toISOString()
+            };
+            
+            Store.users.push(newUser);
+            Store.currentUser = newUser;
+            Store.save();
+            showApp();
+            showToast('Account created successfully!', 'success');
+        }
+
+        function logout() {
+            Store.currentUser = null;
+            Store.save();
+            closeAllModals();
+            document.getElementById('app-container').style.display = 'none';
+            document.getElementById('auth-screen').style.display = 'flex';
+            showToast('Signed out');
+        }
+
+        function showApp() {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'block';
+            
+            const user = Store.currentUser;
+            document.getElementById('user-name').textContent = user.name.split(' ')[0];
+            document.getElementById('user-avatar').textContent = user.name.charAt(0).toUpperCase();
+            document.getElementById('menu-name').textContent = user.name;
+            document.getElementById('menu-email').textContent = user.email;
+            document.getElementById('menu-avatar').textContent = user.name.charAt(0).toUpperCase();
+            
+            updateGreeting();
+            refreshDashboard();
+        }
+
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let greeting = 'Good morning';
+            if (hour >= 12 && hour < 17) greeting = 'Good afternoon';
+            else if (hour >= 17) greeting = 'Good evening';
+            document.getElementById('greeting-text').textContent = greeting;
+        }
+
+        // Navigation
+        function switchView(view) {
+            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+            document.getElementById(`view-${view}`).style.display = 'block';
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+            
+            if (view === 'dashboard') refreshDashboard();
+            if (view === 'tasks') renderAllTasks();
+            if (view === 'goals') renderGoals();
+            if (view === 'memory') renderMemories();
+        }
+
+        // Dashboard
+        function refreshDashboard() {
+            const tasks = Store.getUserTasks();
+            const goals = Store.getUserGoals();
+            const completed = tasks.filter(t => t.completed).length;
+            const total = tasks.length;
+            
+            document.getElementById('stat-tasks').textContent = `${completed}/${total}`;
+            document.getElementById('stat-goals').textContent = goals.length;
+            
+            const score = total > 0 ? Math.round((completed / total) * 100) : 0;
+            document.getElementById('focus-score').textContent = `${score}%`;
+            document.getElementById('focus-bar').style.width = `${score}%`;
+            
+            let msg = "Start your day! Add some tasks.";
+            if (score > 0) msg = "Good start! Keep going.";
+            if (score > 50) msg = "You're on fire! Keep it up.";
+            if (score === 100 && total > 0) msg = "All done! Amazing!";
+            document.getElementById('focus-message').textContent = msg;
+            
+            const recent = tasks.filter(t => !t.completed).slice(0, 3);
+            const container = document.getElementById('dashboard-tasks');
+            
+            if (recent.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 11l3 3L22 4"></path>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                        <p>No pending tasks</p>
+                        <button class="btn-primary" style="margin-top: 1rem;" onclick="openAddModal()">Add your first task</button>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = recent.map(t => createTaskElement(t)).join('');
+            }
+        }
+
+        function createTaskElement(task) {
+            return `
+                <div class="task-item priority-${task.priority}" onclick="toggleTask('${task.id}')">
+                    <div class="task-checkbox ${task.completed ? 'checked' : ''}" onclick="event.stopPropagation(); toggleTask('${task.id}')">
+                        ${task.completed ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
+                    </div>
+                    <div class="task-content ${task.completed ? 'completed' : ''}">
+                        <h4>${escapeHtml(task.title)}</h4>
+                        <div class="task-meta">
+                            <span class="priority-badge">${task.priority}</span>
+                            <span>${formatDate(task.createdAt)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Tasks
+        function renderAllTasks() {
+            const tasks = Store.getUserTasks();
+            let filtered = tasks;
+            
+            if (currentFilter === 'active') filtered = tasks.filter(t => !t.completed);
+            if (currentFilter === 'completed') filtered = tasks.filter(t => t.completed);
+            
+            const container = document.getElementById('all-tasks');
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>No ${currentFilter !== 'all' ? currentFilter : ''} tasks found</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = filtered.map(t => createTaskElement(t)).join('');
+            }
+        }
+
+        function filterTasks(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.priority-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderAllTasks();
+        }
+
+        function toggleTask(id) {
+            const task = Store.tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                Store.save();
+                refreshDashboard();
+                renderAllTasks();
+                showToast(task.completed ? 'Task completed!' : 'Task reopened', 'success');
+            }
+        }
+
+        // Add Task
+        function openAddModal() {
+            document.getElementById('add-modal').classList.add('active');
+            document.getElementById('task-title').focus();
+        }
+
+        function setPriority(p) {
+            currentPriority = p;
+            document.querySelectorAll('.priority-select .priority-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function addTask() {
+            const title = document.getElementById('task-title').value.trim();
+            if (!title) return;
+            
+            Store.tasks.push({
+                id: Date.now().toString(),
+                userId: Store.currentUser.id,
+                title,
+                priority: currentPriority,
+                completed: false,
+                createdAt: new Date().toISOString()
+            });
+            
+            Store.save();
+            document.getElementById('task-title').value = '';
+            closeAllModals();
+            refreshDashboard();
+            showToast('Task added successfully!', 'success');
+        }
+
+        // Goals
+        function renderGoals() {
+            const goals = Store.getUserGoals();
+            const container = document.getElementById('goals-list');
+            
+            if (goals.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <circle cx="12" cy="12" r="6"></circle>
+                            <circle cx="12" cy="12" r="2"></circle>
+                        </svg>
+                        <p>No goals yet. Create your first goal!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = goals.map(g => `
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <div>
+                            <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem;">${escapeHtml(g.title)}</h4>
+                            ${g.description ? `<p style="color: var(--text-muted); font-size: 0.9rem;">${escapeHtml(g.description)}</p>` : ''}
+                        </div>
+                        <button onclick="deleteGoal('${g.id}')" style="background: none; border: none; color: #ff4444; cursor: pointer;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-header">
+                            <span>Progress</span>
+                            <span style="color: var(--accent); font-weight: 600;">${g.progress}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${g.progress}%"></div>
+                        </div>
+                        <input type="range" min="0" max="100" value="${g.progress}" 
+                            onchange="updateGoalProgress('${g.id}', this.value)"
+                            style="width: 100%; margin-top: 1rem; accent-color: var(--accent);">
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateGoalProgress(id, value) {
+            const goal = Store.goals.find(g => g.id === id);
+            if (goal) {
+                goal.progress = parseInt(value);
+                Store.save();
+                renderGoals();
+                refreshDashboard();
+                if (value == 100) showToast('Goal completed! 🎉', 'success');
+            }
+        }
+
+        function deleteGoal(id) {
+            if (confirm('Delete this goal?')) {
+                Store.goals = Store.goals.filter(g => g.id !== id);
+                Store.save();
+                renderGoals();
+                showToast('Goal deleted');
+            }
+        }
+
+        // Memory
+        function renderMemories() {
+            const memories = Store.getUserMemories();
+            const container = document.getElementById('memory-list');
+            
+            if (memories.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2a10 10 0 1 0 10 10H12V2z"></path>
+                            <path d="M12 2a10 10 0 0 1 10 10"></path>
+                            <path d="M12 12L2.5 12"></path>
+                        </svg>
+                        <p>Your memory bank is empty</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = memories.map(m => `
+                <div class="card">
+                    <p style="margin-bottom: 1rem; line-height: 1.6;">${escapeHtml(m.content)}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">${formatDateTime(m.createdAt)}</span>
+                        <button onclick="deleteMemory('${m.id}')" style="background: none; border: none; color: #ff4444; cursor: pointer;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function saveMemory() {
+            const content = document.getElementById('memory-input').value.trim();
+            if (!content) return;
+            
+            Store.memories.push({
+                id: Date.now().toString(),
+                userId: Store.currentUser.id,
+                content,
+                createdAt: new Date().toISOString()
+            });
+            
+            Store.save();
+            document.getElementById('memory-input').value = '';
+            renderMemories();
+            showToast('Memory saved!', 'success');
+        }
+
+        function deleteMemory(id) {
+            Store.memories = Store.memories.filter(m => m.id !== id);
+            Store.save();
+            renderMemories();
+            showToast('Memory deleted');
+        }
+
+        // Menu
+        function openMenu() {
+            document.getElementById('menu-modal').classList.add('active');
+        }
+
+        // Modal
+        function closeModal(e) {
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.classList.remove('active');
+            }
+        }
+
+        function closeAllModals() {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+        }
+
+        // Toast
+        function showToast(message, type = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Utils
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Init
+        if (Store.currentUser) {
+            showApp();
+        }
+    </script>
+</body>
+</html>
